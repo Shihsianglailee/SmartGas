@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remain Gas Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        .header {
+            background-color: #ffffff;
+            padding: 16px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            padding: 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+        }
+
+        .list-view {
+            list-style-type: none;
+            padding: 0;
+            margin: 16px 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .list-view li {
+            padding: 16px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-view li:last-child {
+            border-bottom: none;
+        }
+
+        .button {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            padding: 16px;
+            margin: 16px auto 0 auto;
+            text-align: center;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">Remain Gas Page</div>
+        <div class="form-group">
+            <label for="customer_id">Customer ID:</label>
+            <input type="text" id="customer_id" name="customer_id">
+        </div>
+        <button id="submit" class="button">Get Sensor Data</button>
+        <div id="sensor_info"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('submit').addEventListener('click', function () {
+                const customerID = document.getElementById('customer_id').value;
+
+                if (customerID) {
+                    const e = new URLSearchParams();
+                    e.append('customer_id', customerID);
+
+                    fetch('Show_IOT.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: e
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            const sensorInfoDiv = document.getElementById('sensor_info');
+                            sensorInfoDiv.innerHTML = ''; // 清空之前的內容
+
+                            if (data && data.length > 0) {
+                                data.forEach(item => {
+                                    sensorInfoDiv.innerHTML += '<div>Sensor ID: ' + item.SENSOR_Id + '</div>';
+                                    sensorInfoDiv.innerHTML += '<div>Gas Weight: ' + item.SENSOR_Weight + ' kg</div>';
+                                    sensorInfoDiv.innerHTML += '<div>Battery Status: ' + item.SENSOR_Battery + '</div>';
+                                    sensorInfoDiv.innerHTML += '<div>Last Updated: ' + item.SENSOR_Time + '</div><hr>';
+                                });
+                            } else {
+                                sensorInfoDiv.innerHTML = '<div>No data found</div>';
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                } else {
+                    alert('Please enter a Customer ID.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer IoT Data</title>
+</head>
+<body>
+    <h1>Retrieve IoT Data by Customer ID</h1>
+    <form id="customerForm">
+        <label for="customerId">Enter Customer ID:</label>
+        <input type="text" id="customerId" name="customerId" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>IoT Data:</h2>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('customerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 阻止表单的默认提交行为
+
+            // 获取用户输入的客户ID
+            var customerId = document.getElementById('customerId').value;
+
+            // 通过 Fetch API 发送 POST 请求到 PHP 脚本
+            fetch('http://localhost/test/GetRemainGas.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'id=' + encodeURIComponent(customerId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 将返回的数据在页面上显示
+                var resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

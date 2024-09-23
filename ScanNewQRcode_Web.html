@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan New QR Code</title>
+</head>
+<body>
+
+    <div id="scanner">
+        <!-- This is where the QR code scanner will be initialized -->
+        <video id="preview"></video>
+    </div>
+
+    <form id="gasForm">
+        <label for="gasId">Gas ID:</label>
+        <input type="text" id="inputNewGasId" name="gasId" placeholder="Enter or Scan Gas ID">
+        
+        <label for="gasId">Gas Type:</label>
+        <p id="gasType"></p>
+        
+        <label for="initialVolume">Initial Volume:</label>
+        <p id="initialVolume"></p>
+        
+        <label for="gasWeightEmpty">Empty Weight:</label>
+        <p id="gasWeightEmpty"></p>
+        
+        <button type="button" id="confirmNewScanButton">Confirm</button>
+    </form>
+
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>

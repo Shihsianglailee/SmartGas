@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單查詢</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        button {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>訂單查詢</h1>
+        <form id="workerForm">
+            <label for="workerId">Worker ID:</label>
+            <input type="text" id="workerId" name="workerId" required>
+            <button type="submit">獲取訂單</button>
+        </form>
+        <button id="unfinished">未完成訂單</button>
+        <button id="finished">已完成訂單</button>
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Details</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('workerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                fetchOrders('unfinished');
+            });
+
+            document.getElementById('unfinished').addEventListener('click', function() {
+                fetchOrders('unfinished');
+            });
+
+            document.getElementById('finished').addEventListener('click', function() {
+                fetchOrders('finished');
+            });
+
+            function fetchOrders(type) {
+                const workerId = document.getElementById('workerId').value;
+                const url = type === 'unfinished' ? 'http://localhost/test/Worker_UnOrderList.php' : 'http://localhost/test/Worker_OrderList.php';
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `id=${encodeURIComponent(workerId)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('orderTable').querySelector('tbody');
+                    tableBody.innerHTML = '';
+                    data.forEach(order => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${order.ORDER_Id}</td><td>${order.ORDER_Details || order.DELIVERY_Address}</td>`;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    </script>
+</body>
+</html>

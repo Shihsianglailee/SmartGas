@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Lookup Order Details</h1>
+
+    <form id="orderForm">
+        <label for="orderId">Enter ORDER_Id:</label>
+        <input type="text" id="orderId" name="orderId" required>
+        <button type="submit">Get Details</button>
+    </form>
+
+    <div id="result" class="result">
+        <p><strong>Company Name:</strong> <span id="companyName"></span></p>
+        <p><strong>Customer ID:</strong> <span id="customerId"></span></p>
+        <p><strong>Company ID:</strong> <span id="companyId"></span></p>
+    </div>
+    <div>
+        <button onclick="gotoGasCylinderInfo()">Go to Gas Cylinder Info</button>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    
+    <script>
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const regex = /([^&=]+)=([^&]*)/g;
+            let m;
+            while (m = regex.exec(queryString)) {
+                params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+            }
+            return params;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            event.preventDefault();
+            const params = getQueryParams();
+            const orderId = params.orderId;
+
+            if (orderId) {
+                fetchOrderCom(orderId);
+            } else {
+                alert('無法獲取訂單 ID');
+            }
+        });
+        // const apiURL='http://localhost/test/Show_Company_Name.php';
+        const apiURL='http://54.199.33.241/test/Show_Company_Name.php';
+
+        function fetchOrderCom(orderId) {
+            fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'id': orderId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response === 'success') {
+                    document.getElementById('companyName').textContent = data.Company_Name;
+                    document.getElementById('customerId').textContent = data.Customer_Id;
+                    document.getElementById('companyId').textContent = data.COMPANY_Id;
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('error').textContent = '';
+                    saveCustomerID(data.Customer_Id);
+                } else {
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('error').textContent = 'Failed to fetch data. Please check the ORDER_Id.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').style.display = 'none';
+                document.getElementById('error').textContent = 'An error occurred while fetching data.';
+            });
+        }
+
+    </script>
+    <script>
+        function saveCustomerID(customerID) {
+            localStorage.setItem('CustomerID', customerID);
+        }
+        function gotoGasCylinderInfo(){
+            window.location.href = 'Gas_Cylinder_Info.html';
+        }
+    </script>
+
+</body>
+</html>

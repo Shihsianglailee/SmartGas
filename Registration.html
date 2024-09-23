@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>註冊表單</title>
+    <style>
+        body {
+            font-family: 微軟正黑體, Helvetica, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0c0c0c;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 35px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 17px;
+            width: 100%;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group label {
+            display: inline;
+        }
+
+        .gender-group {
+            margin-bottom: 20px;
+        }
+
+        .gender-group label {
+            display: inline;
+            margin-right: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: 26px;
+        }
+
+        .flex-container {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 0px;
+        }
+
+        .flex-item {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-template-rows: auto;
+            gap: 5px;
+            margin-bottom: 0px;
+        }
+
+        .grid-item {
+            padding: 5px;
+        }
+
+        .container .input-error {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: none;
+            border-bottom: 1.5px solid #ff0000;
+            box-sizing: border-box;
+            background: transparent;
+        }
+    </style>
+    <script src="http://localhost/script/register.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <a id="login" href="login.html" class="back-button">&lt;</a>
+        <h1>註冊</h1>
+        <form action="http://localhost/api/register.php" method="post">
+
+            <label for="register_name">姓名</label>
+            <input type="text" id="register_name_input" name="register_name_input" placeholder="請輸入姓名" required>
+
+            <div class="gender-group">
+
+                <input type="radio" id="radioButton_male" name="gender" value="male">
+                <label for="radioButton_male">男</label>
+                <input type="radio" id="radioButton_female" name="gender" value="female">
+                <label for="radioButton_female">女</label>
+            </div>
+
+            <label for="register_addr_input">居住地址</label>
+
+            <div class="grid-container">
+                <div class="grid-item">
+                    <select id="citySpinner" name="citySpinner" required>
+                    </select>
+                    <script>
+                        // Call fetchCities on page load
+                        document.addEventListener('DOMContentLoaded', fetchCities);
+
+                        citySpinner.addEventListener('change', function () {
+                            // Get the selected city's country_name as ID (here it's assumed that the city's name is used as ID)
+                            const selectedCityId = this.value;
+                            if (selectedCityId != '') { // Check to make sure that "請選擇縣市" isn’t selected
+                                fetchDistrict(selectedCityId);
+                                console.log(selectedCityId);
+                            }
+                        });
+                    </script>
+                </div>
+                <div class="grid-item">
+
+                    <select id="districtSpinner" name="districtSpinner" required>
+                    </select>
+                    <script>
+                        // Call fetchCities on page load
+                        document.addEventListener('DOMContentLoaded', fetchDistrict);
+
+                        districtSpinner.addEventListener('change', function () {
+                            // Get the selected city's country_name as ID (here it's assumed that the city's name is used as ID)
+                            const selectedDistrictId = this.value;
+                            if (selectedDistrictId != '') {
+                                //   fetchDistrict(selectedDistrictId);
+                                console.log(selectedDistrictId);
+                            }
+                        });
+                    </script>
+                </div>
+                <div class="grid-item">
+
+                    <input type="text" id="postCodeText" name="postCodeText" placeholder="郵遞區號">
+                </div>
+            </div>
+            <input type="text" id="register_addr_input" name="register_addr_input" placeholder="請輸入您的居住地址" required>
+
+
+
+            <label for="elevatorTitle">工作場所</label>
+            <div class="flex-container">
+                <select id="companies" class="flex-item" required>
+                </select>
+                <script>
+                    // Call fetchCities on page load
+                    document.addEventListener('DOMContentLoaded', fetchCompanies);
+
+                    companies.addEventListener('change', function () {
+                        // Get the selected city's country_name as ID (here it's assumed that the city's name is used as ID)
+                        const selectedCompanyId = this.value;
+                        if (selectedCompanyId != '') { // Check to make sure that "請選擇縣市" isn’t selected
+                            // fetchCompanies(selectedCompanyId);
+                            console.log(selectedCompanyId);
+                        }
+                    });
+                </script>
+
+            </div>
+
+            <label for="register_phone_input">手機號碼</label>
+            <input type="text" id="register_phone_input" name="register_phone_input" placeholder="請輸入您的手機號碼" required>
+
+            <label for="register_housephone_input">室内電話</label>
+            <input type="text" id="register_housephone_input" name="register_housephone_input" placeholder="請輸入您的室内電話">
+
+            <label for="register_email_input">電子信箱</label>
+            <input type="text" id="register_email_input" name="register_email_input" placeholder="請輸入您的電子信箱" required>
+
+            <label for="register_pass_input">密碼</label>
+            <input type="password" id="register_pass_input" name="register_pass_input" placeholder="請輸入您的密碼" required
+                oninput="checkPasswordMatch()">
+
+            <label for="register_pass_con_input">確認密碼</label>
+            <input type="password" id="register_pass_con_input" name="register_pass_con_input" placeholder="請確認您的密碼"
+                required oninput="checkPasswordMatch()">
+            <div id="message" style="color: #ff0000; font-weight: bold; font-size: smaller;margin-bottom: 15px;"></div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="serviceCheckBox" name="serviceCheckBox" required>
+                <label for="serviceCheckBox">同意服務條款</label>
+            </div>
+
+            <button type="submit" id="submit">下一步</button>
+        </form>
+    </div>
+
+
+</body>
+
+</html>

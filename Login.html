@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 微軟正黑體, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        @media only screen and (max-width: 768px) {
+            body {
+                justify-content: flex-start;
+            }
+        }
+
+        #container {
+            width: 80%;
+            max-width: 80vh;
+            padding: 60px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            max-height: 80vh;
+            position: relative;
+        }
+
+        #title {
+            width: calc(100% - 50px);
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(41, 52, 85, 0.3);
+            background-color: #667496;
+            text-align: center;
+            color: #ffffffee;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        #logoImage {
+            width: 50%;
+            height: 50%;
+            margin-top: 1px;
+            margin-bottom: 1px;
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        #email,
+        #password {
+            width: calc(100% - 24px);
+            height: 48px;
+            margin-bottom: 8px;
+            margin-top: 8px;
+            border: 1px solid #3f4d8a;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(41, 52, 85, 0.1);
+        }
+
+        #login {
+            width: calc(100% - 24px);
+            height: 60px;
+            margin-top: 16px;
+            margin-bottom: 64px;
+            box-shadow: 0 4px 6px rgba(41, 52, 85, 0.3);
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            padding: 0;
+            background-color: #4a5497;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #login:hover {
+            background-color: #292c6a;
+        }
+
+        .login[type="submit"]:hover {
+            background-color: #292c6a;
+        }
+
+        .button-container {
+            width: calc(100% - 24px); 
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .button-container button {
+            width: calc(50% - 5px);
+            background-color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-container button:nth-child(2) {
+            margin-left: 0px;
+        }
+
+        .button-container::before {
+            content: ""; 
+            width: 1px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ccc;
+        }
+
+        #loading {
+            display: none;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div id="container">
+        <h1 id="title">登入</h1>
+        <div style="width: 100%; margin: 25px; display: flex; flex-direction: column; align-items: center;">
+            <img src="gasguardlogo_foreground.png">
+            <form id="loginForm">
+                <input id="email" type="email" name="email" placeholder="請輸入您的電子信箱" autocomplete="email" required>
+                <input id="password" type="password" name="password" placeholder="請輸入您的密碼"autocomplete="current-password" required>
+                <button id="login" type="submit">登入</button>
+            </form>
+        </div>
+        <div class="button-container">
+            <button id="forgetPasswordButton" onclick="redirectToForgetPassword()">忘記密碼</button>
+            <button id="registerButton" onclick="redirectToRegistrationPage()">註冊</button>
+        </div>
+        <div id="result" style="color: red; margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        // const apiURL='http://localhost/test/login.php';
+        // const WIDurl = 'http://localhost/test/Find_Worker_ID.php';
+        
+        const apiURL='http://54.199.33.241/test/login.php';
+        const WIDurl = 'http://54.199.33.241/test/Find_Worker_ID.php';
+
+        function redirectToHomepage() {
+            window.location.href = "Homepage.html";
+            //window.location.herf="show_workerID.html";
+        }
+        function redirectToForgetPassword() {
+            window.location.href = "Forget Password (1).html";
+        }
+        function redirectToRegistrationPage() {
+            window.location.href = "Registration.html";
+        }
+
+        function storeEmail(email) {
+            localStorage.setItem('Email', email);
+        }
+        
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            // Fetch form data
+            const formData = new FormData(this);
+            const email = document.getElementById('email').value;
+
+            // Store email in localStorage
+            // storeEmail(email);
+
+            const result = document.getElementById('result');
+            result.textContent = ''; // Clear previous results
+
+            fetch(WIDurl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `email=`+email
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response === 'success') {
+                    localStorage.setItem('Worker_Id', data.Worker_Id);
+                    // result.textContent = `Worker ID: ${data.Worker_Id} has been stored in localStorage.`;
+                } else {
+                    result.textContent = 'No worker found with the provided email.';
+                }
+            })
+            .catch(error => {
+                result.textContent = 'An error occurred while fetching the worker ID.';
+                console.error('Error:', error);
+            });
+
+            // Send form data to login.php using Fetch API
+            fetch(apiURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            })  
+            .then(response => response.text())
+            .then(data => {
+                if (data.trim() === 'success') {
+                    // If login is successful, redirect to Worker Profile page
+                    
+                    // if(localStorage.getItem('Email')===email){
+                    //     redirectToHomepage();    
+                    // }
+                    redirectToHomepage();
+                } else {
+                    // If login fails, display error message (optional)
+                    alert('Login failed. Please check your email and password.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+
+            
+
+
+        });
+    </script>
+</body>
+
+
+</html>

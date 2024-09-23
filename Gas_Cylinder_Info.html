@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Cylinder Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .sensor-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .sensor-info h2 {
+            margin-top: 0;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Gas Cylinder Information</h1>
+
+<form id="sensorForm">
+    <label for="customerId">Enter Customer ID:</label>
+    <input type="text" id="customerId" name="customerId" required>
+    <button type="submit">Get Sensor Data</button>
+</form>
+
+<div id="sensorData"></div>
+
+<!-- <script>
+    document.getElementById('sensorForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const customerId = document.getElementById('customerId').value;
+        const sensorDataDiv = document.getElementById('sensorData');
+        sensorDataDiv.innerHTML = ''; // Clear previous results
+
+        fetch('http://localhost/test/Show_IOT.php', { // Replace with the actual endpoint of your PHP script
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'id': customerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response === '0') {
+                sensorDataDiv.innerHTML = '<p class="error">No data found for this customer.</p>';
+            } else if (data.response === 'failure') {
+                sensorDataDiv.innerHTML = '<p class="error">An error occurred while retrieving the data.</p>';
+            } else {
+                data.forEach(sensor => {
+                    const sensorDiv = document.createElement('div');
+                    sensorDiv.classList.add('sensor-info');
+                    sensorDiv.innerHTML = `
+                        <h2>Sensor ID: ${sensor.SENSOR_Id}</h2>
+                        <p>Weight: ${sensor.SENSOR_Weight} kg</p>
+                        <p>Battery Status: ${sensor.SENSOR_Battery}</p>
+                        <p>Last Update: ${sensor.SENSOR_Time}</p>
+                        <p>Data within last 30 minutes: ${sensor.is_within_30_minutes ? 'Yes' : 'No'}</p>
+                    `;
+                    sensorDataDiv.appendChild(sensorDiv);
+                });
+            }
+        })
+        .catch(error => {
+            sensorDataDiv.innerHTML = `<p class="error">An error occurred: ${error.message}</p>`;
+        });
+    });
+</script> -->
+<script>
+    const sensorDataDiv = document.getElementById('sensorData');
+    sensorDataDiv.innerHTML = ''; // Clear previous results
+    document.addEventListener('DOMContentLoaded', function() {
+            event.preventDefault();
+            const customerID = localStorage.getItem('CustomerID');
+            
+
+            if (customerID>0) {
+                fetchSensor(customerID);
+            } else {
+                alert('無法獲取訂單 ID');
+            }
+    });
+    function fetchSensor(customerID){
+        fetch('http://localhost/test/Show_IOT.php', { // Replace with the actual endpoint of your PHP script
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'id': customerID
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response === '0') {
+                sensorDataDiv.innerHTML = '<p class="error">No data found for this customer.</p>';
+            } else if (data.response === 'failure') {
+                sensorDataDiv.innerHTML = '<p class="error">An error occurred while retrieving the data.</p>';
+            } else {
+                data.forEach(sensor => {
+                    const sensorDiv = document.createElement('div');
+                    sensorDiv.classList.add('sensor-info');
+                    sensorDiv.innerHTML = `
+                        <a href="Update_Gas_Weight.html?sensorId=${sensor.SENSOR_Id}"><h2>Sensor ID: ${sensor.SENSOR_Id}</h2></a>
+                        <p>Weight: ${sensor.SENSOR_Weight} kg</p>
+                        <p>Battery Status: ${sensor.SENSOR_Battery}</p>
+                        <p>Last Update: ${sensor.SENSOR_Time}</p>
+                        <p>Data within last 30 minutes: ${sensor.is_within_30_minutes ? 'Yes' : 'No'}</p>
+                    `;
+                    sensorDataDiv.appendChild(sensorDiv);
+                });
+            }
+        })
+        .catch(error => {
+            sensorDataDiv.innerHTML = `<p class="error">An error occurred: ${error.message}</p>`;
+        });
+    }
+</script>
+
+</body>
+</html>

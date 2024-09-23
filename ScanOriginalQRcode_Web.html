@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Original QR Code</title>
+</head>
+<body>
+    <h1>Scan Original QR Code</h1>
+
+    <video id="preview" style="width: 100%; height: auto;"></video>
+    <br>
+    <label for="manualInput">Or enter Gas ID manually:</label>
+    <input type="text" id="manualInput" placeholder="Enter Gas ID">
+    <br><br>
+    <button id="confirmButton">Confirm</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const video = document.getElementById('preview');
+    const manualInput = document.getElementById('manualInput');
+    const confirmButton = document.getElementById('confirmButton');
+    let gasIdArray = [];
+
+    function startCamera() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+                scanQRCode();
+            });
+        } else {
+            alert('Camera not supported on this device');
+        }
+    }
+
+    function scanQRCode() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (qrCode) {
+                    manualInput.value = qrCode.data;
+                    console.log('Scanned QR Code:', qrCode.data);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+        tick();
+    }
+
+    confirmButton.addEventListener('click', function () {
+        const gasId = manualInput.value.trim();
+        if (gasId) {
+            gasIdArray.push(gasId);
+            console.log('Gas ID Array:', gasIdArray);
+            sure(gasId);
+        } else {
+            window.location.href = 'gas_register.html'; // Redirect to Gas Register page
+        }
+    });
+
+    function sure(gasId) {
+        const showUrl = 'http://localhost/test/Show_Gas_Info.php';
+        const formData = new URLSearchParams();
+        formData.append('id', gasId);
+
+        fetch(showUrl, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response.includes('failure')) {
+                    alert('此瓦斯桶尚未註冊');
+                    window.location.href = 'gas_register.html';
+                } else {
+                    window.location.href = 'remain_gas.html';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    startCamera();
+});
+
+    </script>
+</body>
+</html>

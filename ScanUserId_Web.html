@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan User ID</title>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <h1>Scan User ID</h1>
+    <div style="width: 300px;" id="reader"></div>
+    <button id="nextButton" style="margin-top: 20px;">Next</button>
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            // Handle the result here
+            alert(`User ID: ${decodedText}`);
+            // You can perform further actions like storing the decodedText or navigating to another page
+        }
+
+        function onScanError(errorMessage) {
+            // Handle the error message
+            console.warn(`QR Code Scan Error: ${errorMessage}`);
+        }
+
+        // Create instance of HTML5 QR Code Scanner
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { fps: 10, qrbox: 250 }, 
+            false);
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+
+        document.getElementById('nextButton').addEventListener('click', function() {
+            // Handle next button click
+            alert('Proceeding to the next step...');
+            // Add your code to handle the next step here
+        });
+    </script>
+</body>
+</html>

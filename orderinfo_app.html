@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        #order-info p {
+            margin: 10px 0;
+        }
+        #confirmOrder {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        #confirmOrder:hover {
+            background-color: #0056b3;
+        }
+        #order-detail-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        #order-detail-list li {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Info</h1>
+        <div id="order-info">
+            <p>姓名: <span id="customer-name"></span></p>
+            <p>電話: <span id="contact-number"></span></p>
+            <p>地址: <span id="delivery-address"></span></p>
+            <p>訂購時間: <span id="order-time"></span></p>
+            <p>氣量: <span id="gas-quantity"></span></p>
+        </div>
+        <button id="confirmOrder">確認訂單</button>
+        <ul id="order-detail-list"></ul>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // const orderId = new URLSearchParams(window.location.search).get('orderID') || 'defaultOrderId';
+            const orderId = 184;
+            fetchOrderData(orderId);
+            fetchOrderDetails(orderId);
+
+            document.getElementById('confirmOrder').addEventListener('click', () => {
+                saveNewGas(orderId);
+            });
+        });
+
+        async function fetchOrderData(orderId) {
+            try {
+                const response = await fetch('http://localhost/test/Show_Order_Info.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_Id: orderId })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                document.getElementById('customer-name').textContent = data.Order_Name;
+                document.getElementById('contact-number').textContent = data.Order_Phone;
+                document.getElementById('delivery-address').textContent = data.Order_Address;
+                document.getElementById('order-time').textContent = data.Order_Time;
+                document.getElementById('gas-quantity').textContent = data.Gas_Quantity;
+            } catch (error) {
+                console.error('Error fetching order data:', error);
+            }
+        }
+
+        async function fetchOrderDetails(orderId) {
+            try {
+                const response = await fetch('http://localhost/test/Worker_OrderDetail.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_Id: orderId })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const orderDetailList = document.getElementById('order-detail-list');
+                orderDetailList.innerHTML = '';
+                data.forEach(detail => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `數量: ${detail.Order_Quantity}, 類型: ${detail.Order_type}, 重量: ${detail.Order_weight}`;
+                    orderDetailList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+            }
+        }
+
+        async function saveNewGas(orderId) {
+            try {
+                const response = await fetch('http://localhost/test/Save_NewGasID.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_Id: orderId })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.includes('success')) {
+                    saveSensorWeight(orderId);
+                } else {
+                    alert('Error: Unable to confirm order');
+                }
+            } catch (error) {
+                console.error('Error saving new gas:', error);
+            }
+        }
+
+        async function saveSensorWeight(orderId) {
+            try {
+                const response = await fetch('http://localhost/test/Save_OriginalWeight.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sensor_Id: orderId }) // Assuming sensor_Id is same as orderId for this example
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.includes('success')) {
+                    window.location.href = '/';
+                } else {
+                    alert('Error: Unable to save sensor weight');
+                }
+            } catch (error) {
+                console.error('Error saving sensor weight:', error);
+            }
+        }
+    </script>
+</body>
+</html>

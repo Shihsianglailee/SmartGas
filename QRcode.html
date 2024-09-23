@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人條碼</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        svg {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            fill: #000000;
+        }
+
+        #backButton {
+            width: auto;
+            height: auto;
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 18px;
+        }
+
+        .title {
+            font-size: 33px;
+            font-weight: bold;
+            color: #000000;
+            margin-top: 35px;
+            margin-bottom: 90px;
+            text-align: center;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .video-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .video-container video {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 300px;
+            /* 根据需要调整 */
+            transform: scaleX(-1);
+            /* 添加镜像效果 */
+        }
+
+        .section {
+            margin: 10px 0;
+            background-color: #ffffff;
+            border: none;
+            display: flex;
+            align-items: center;
+            height: auto;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: normal;
+            color: #333333;
+            margin: 0 10px 0 0;
+            white-space: nowrap;
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-left: 10px;
+        }
+
+        .button {
+            background-color: #343030;
+            color: white;
+            width: 100%;
+            /* 使按钮填满卡片的宽度 */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-basis: 100%;
+            text-align: center;
+            /* 确保文字居中 */
+        }
+
+        .button:hover {
+            background-color: #2254a6;
+        }
+
+        .separator {
+            height: 2px;
+            background-color: #eee;
+            margin: 20px 0;
+        }
+
+        .barcode {
+            width: 100%;
+            height: 200px;
+            margin: 0 40px;
+        }
+
+        #barcodeBackToHome {
+            width: 82%;
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 0;
+            margin: 0 40px;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        #barcodeBackToHome:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5%;
+            background-color: #ffffff;
+            color: #ffffff;
+            text-align: center;
+            font-size: 17px;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer a {
+            color: #343030;
+            text-decoration: none;
+            margin: 0 15px;
+            border-bottom: 2px solid transparent;
+            transition: border-bottom 0.3s ease;
+        }
+
+        .footer a:hover {
+            border-bottom: 2px solid #625f5f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button id="backButton" onclick="window.location.href = 'Homepage.html'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#000000">
+                <path fill="black" d="M11.67,3.87L9.9,2.1 0,12l9.9,9.9 1.77,-1.77L3.54,12z" />
+            </svg>
+        </button>
+        <div class="card">
+            <div class="video-container">
+                <video id="video" style="display:block;"></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <h1>掃描原瓦斯桶 QR code</h1>
+            <div class="section">
+                <h2>輸入原瓦斯桶編號</h2>
+                <input id="originalGasIdInput" class="input-text" type="text">
+            </div>
+            <div class="section">
+                <h2>輸入新瓦斯桶編號</h2>
+                <input id="newGasIdInput" class="input-text" type="text">
+            </div>
+            <div class="section">
+                <h2>輸入空桶重量</h2>
+                <input id="gasWeightEmptyInput" class="input-text" type="text">
+            </div>
+            <div class="section">
+                <h2>輸入工人編號</h2>
+                <input id="workerIdInput" class="input-text" type="text">
+            </div>
+            <div class="separator"></div>
+            <div class="button-container">
+                <button id="save_button" class="button save" onclick="validateAndRedirect()">更新瓦斯桶</button>
+            </div>
+        </div>
+        <div class="footer">
+            <a href="Homepage.html"><i class="fas fa-home"></i> 首页</a>
+            <a href="Order(Unfinished).html"><i class="fas fa-history"></i> 歷史訂單</a>
+            <a href="User Dashboard.html"><i class="fas fa-user"></i> 個人資料</a>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        const originalGasIdInput = document.getElementById('originalGasIdInput');
+         const newGasIdInput = document.getElementById('newGasIdInput');
+        const gasWeightEmptyInput = document.getElementById('gasWeightEmptyInput');
+        const workerIdInput = document.getElementById('workerIdInput');
+
+        // const apiURL = 'http://localhost/test/registGas.php'; // 確保這裡的URL正確
+        const apiURL = 'http://54.199.33.241/test/registGas.php'; // 確保這裡的URL正確
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                requestAnimationFrame(tick);
+            })
+            .catch(error => {
+                console.error('獲取攝像頭流失敗:', error);
+                alert('無法獲取攝像頭，請確保攝像頭可用並已授權網站訪問。');
+            });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert',
+                });
+                if (code) {
+                    const data = code.data;
+                    originalGasIdInput.value = data; // 將 QR 碼內容填入原瓦斯桶編號輸入框
+                    fetchGasData(data);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function fetchGasData(gasId) {
+            fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id=' + gasId,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response === 'success') {
+                        document.getElementById('result').innerHTML = `
+                    <p>GAS Id: ${data.GAS_Id}</p>
+                    <p>GAS Volume: ${data.GAS_Volume}</p>
+                    <p>GAS Type: ${data.GAS_Type}</p>
+                    <p>GAS Weight Empty: ${data.GAS_Weight_Empty}</p>
+                `;
+                    } else {
+                        document.getElementById('result').innerHTML = `<p>查無此瓦斯資料</p>`;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function validateAndRedirect() {
+            const originalGasId = originalGasIdInput.value;
+            const newGasId = newGasIdInput.value;
+            const gasWeightEmpty = gasWeightEmptyInput.value;
+            const workerId = workerIdInput.value;
+
+            fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${originalGasId}&gasId=${newGasId}&gasWeightEmpty=${gasWeightEmpty}&Worker_Id=${workerId}`,
+            })
+                .then(response => response.text()) // PHP 回傳的是 "success" 或 "failure" 的純文本
+                .then(result => {
+                    if (result.trim() === "success") {
+                        alert('資料已成功儲存');
+                        window.location.href = 'QRcode_Register.html'; // 替換為你要導向的頁面
+                    } else {
+                        alert('儲存資料失敗，請檢查輸入資料。');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+    </script>
+
+</body>
+
+</html>

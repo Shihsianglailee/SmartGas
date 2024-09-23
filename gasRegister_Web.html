@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #camera-preview {
+            width: 100%;
+            height: 300px;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gas Register</h2>
+        <label for="gasCode">Manually Enter Gas Code</label>
+        <input type="text" id="gasCode" placeholder="Enter Gas Code">
+
+        <label for="gasWeight">Enter Gas Empty Weight</label>
+        <input type="text" id="gasWeight" placeholder="Enter Gas Empty Weight">
+
+        <button id="confirmButton">Confirm</button>
+        <button id="skipButton">Skip</button>
+
+        <h3>Gas Code: <span id="changeableNewID"></span></h3>
+        <h3>Gas Empty Weight: <span id="changeableNewVolume"></span></h3>
+
+        <div id="camera-preview">Camera Preview</div>
+
+        <video id="videoElement" width="100%" height="300" autoplay></video>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const gasCodeInput = document.getElementById('gasCode');
+    const gasWeightInput = document.getElementById('gasWeight');
+    const changeableNewID = document.getElementById('changeableNewID');
+    const changeableNewVolume = document.getElementById('changeableNewVolume');
+    const confirmButton = document.getElementById('confirmButton');
+    const skipButton = document.getElementById('skipButton');
+    // const URL = "http://54.199.33.241/test/registGas.php";  // API URL
+    const URL = "http://localhost/test/registGas.php";  // API URL
+
+    // Update Gas ID and Gas Weight dynamically
+    gasCodeInput.addEventListener('input', function () {
+        changeableNewID.textContent = gasCodeInput.value;
+    });
+
+    gasWeightInput.addEventListener('input', function () {
+        changeableNewVolume.textContent = gasWeightInput.value;
+    });
+
+    // Confirm Button Click Event
+    confirmButton.addEventListener('click', function () {
+        const gasId = gasCodeInput.value;
+        const gasWeight = gasWeightInput.value;
+
+        if (gasId.length === 10 && gasWeight.trim() !== "") {
+            saveGas(gasId, gasWeight);
+        } else {
+            alert('Please enter a valid 10-digit Gas ID and empty weight.');
+        }
+    });
+
+    // Skip Button Click Event
+    skipButton.addEventListener('click', function () {
+        window.location.href = 'remain_gas.html';  // Redirect to the Remain Gas page
+    });
+
+    // Save Gas Function (Using Fetch API)
+    function saveGas(gasId, gasWeight) {
+        const workerId = 1;  // Replace with dynamic worker ID logic
+        fetch(URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'gasId': gasId,
+                'gasWeightEmpty': gasWeight,
+                'Worker_Id': workerId,
+            })
+        })
+        .then(response => response.text())
+        .then(data => {
+            if (data.includes('success')) {
+                alert('Gas cylinder successfully registered');
+                window.location.href = 'remain_gas.html';  // Redirect to Remain Gas
+            } else if (data.includes('Duplicate')) {
+                alert('Failed to register: Gas cylinder already exists.');
+            } else {
+                alert('Failed to register gas cylinder.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error occurred while registering gas cylinder.');
+        });
+    }
+
+    // Camera access for QR code scanning
+    const video = document.getElementById('videoElement');
+
+    function startCamera() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.error("Error starting camera: ", err);
+            });
+        }
+    }
+
+    startCamera();
+});
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #videoElement {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            display: block;
+        }
+        #order_ID_Text {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 18px;
+        }
+        #qrCodeFoundButton {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        #qrCodeFoundButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <video id="videoElement"></video>
+    <input type="text" id="order_ID_Text" placeholder="QR Code will appear here" readonly>
+    <button id="qrCodeFoundButton" disabled>Confirm Receipt Scan</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.js"></script>
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const order_ID_Text = document.getElementById('order_ID_Text');
+        const qrCodeFoundButton = document.getElementById('qrCodeFoundButton');
+        let qrCode = "";
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
+            videoElement.srcObject = stream;
+            videoElement.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
+            videoElement.play();
+            requestAnimationFrame(tick);
+        });
+
+        function tick() {
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+                canvas.height = videoElement.videoHeight;
+                canvas.width = videoElement.videoWidth;
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                if (code) {
+                    qrCode = code.data;
+                    order_ID_Text.value = qrCode;
+                    qrCodeFoundButton.disabled = false;
+                    console.log("QR Code Found: ", qrCode);
+                } else {
+                    console.log("QR Code Not Found");
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        qrCodeFoundButton.addEventListener('click', () => {
+            console.log("QR Code Confirmed: ", qrCode);
+            window.location.href = "remain_gas.html"; // Redirect to another page
+        });
+    </script>
+</body>
+</html>

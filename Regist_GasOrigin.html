@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Data Entry</title>
+</head>
+<body>
+    <h2>Enter Gas Cylinder Data</h2>
+    <form id="gasForm">
+        <label for="gasId">Gas ID:</label>
+        <input type="text" id="gasId" name="gasId" required><br><br>
+
+        <label for="gasWeightEmpty">Empty Weight (kg):</label>
+        <input type="text" id="gasWeightEmpty" name="gasWeightEmpty" required><br><br>
+
+        <label for="Worker_Id">Worker ID:</label>
+        <input type="text" id="Worker_Id" name="Worker_Id" required><br><br>
+
+        <input type="hidden" name="id" value="1"> <!-- 用來觸發 PHP 處理代碼 -->
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        document.getElementById('gasForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 防止表單直接提交
+
+            const formData = new FormData(this);
+
+            fetch('http://localhost/test/registGas.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data.trim() === 'success') {
+                    // 插入成功，跳轉到下一頁
+                    window.location.href = 'QRcode_Register.html';
+                } else {
+                    // 處理錯誤消息
+                    alert(data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

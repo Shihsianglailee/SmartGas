@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Accumulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Update Gas Accumulation</h1>
+    <form id="gasForm">
+        <label for="customerId">Customer ID:</label>
+        <input type="text" id="customerId" name="id" required>
+
+        <label for="companyId">Company ID:</label>
+        <input type="text" id="companyId" name="company" required>
+
+        <label for="gasVolume">Gas Volume:</label>
+        <input type="number" id="gasVolume" name="gas" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        document.getElementById('gasForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 防止表單自動提交
+
+            const customerId = document.getElementById('customerId').value;
+            const companyId = document.getElementById('companyId').value;
+            const gasVolume = document.getElementById('gasVolume').value;
+
+            // 準備要發送的數據
+            const formData = new FormData();
+            formData.append('id', customerId);
+            formData.append('company', companyId);
+            formData.append('gas', gasVolume);
+
+            // 發送 POST 請求到 API
+            fetch('http://localhost/test/Save_RemainGas.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // 在頁面上顯示回應結果
+                document.getElementById('response').innerText = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('response').innerText = 'An error occurred';
+            });
+        });
+    </script>
+</body>
+</html>
